@@ -7,17 +7,18 @@
 
 <body>
 <div>
-    <h2 class="page-header">Documents</h2>
+    <h2 class="page-header">Liste des produits</h2>
     <ul>
         <li th:each="document : ${documents}">
         	<a th:href="${'/documents/'+ document.getId() +'/'+ document.getSlug()}" th:text="${document.getSlug()}">
-                hj
+                Produit
               </a>
         </li>
-        <p th:each="doc : ${documents}">
-        	<!-- <div th:text="${doc.asHtml(linkResolver)}"></div> -->
-
-        	[[${doc.asHtml(linkResolver)}]]
+        
+        
+        <p th:each="doc : ${documents}">			
+        
+        	<!-- [[${doc.asHtml(linkResolver)}]]  -->
         </p>
     </ul>
 </div>

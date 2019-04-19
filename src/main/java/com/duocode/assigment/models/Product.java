@@ -2,8 +2,7 @@ package com.duocode.assigment.models;
 
 import javax.validation.constraints.NotEmpty;
 
-
-public class Product {
+public class Product{
 	
 	@NotEmpty
 	private String image;

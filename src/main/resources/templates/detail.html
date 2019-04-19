@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html layout:decorator="base">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${document.getSlug()}">document slug placeholder</title>
+</head>
+
+<body>
+    <div >
+
+        <article  th:utext="${document.asHtml(linkResolver)}">
+            <h3>Article Placeholder</h3>
+        </article>
+
+		
+
+    </div>
+</body>
+</html>
