@@ -33,7 +33,7 @@ public class ContentController {
 	private LinkResolver linkResolver;
 	
 	
-	List<Product> products = new ArrayList<Product>();
+	
 	
 	@ResponseStatus(HttpStatus.NOT_FOUND)
     public static class DocumentNotFoundException extends RuntimeException {
@@ -43,50 +43,18 @@ public class ContentController {
 	@RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(ModelMap model) {
 		System.out.println("Trying to connect to: "+prismicApi);
-		Product product =  new Product();
+		
 		
 		Api api = Api.get(prismicApi);
 		
 		List<Document> document = api.query().submit().getResults();
-		products = createProducts(product, document);
-		System.out.println("Price: "+products.get(0).getPrice()+" Description: "+products.get(0).getDescription());
+		List<Product> products = createProducts(document);
 		 model.addAttribute("documents", api.query().submit().getResults());
-		  
+		 model.addAttribute("products", products);
 		 model.addAttribute("linkResolver", linkResolver);
-        // model.addAttribute("documents", api.query().submit().getResults());
         return "index";
     }
 
-	/**
-	 * @param product
-	 * @param document
-	 */
-	private List<Product> createProducts(Product product, List<Document> document) {
-		Iterator<Document> itr = document.iterator();
-		
-		//itr.getFragments().get("prismicpage.bandeau_des_offres_background_color")
-		while(itr.hasNext()) {
-	         Document element = itr.next();
-	         product.setImage(((io.prismic.Fragment.Image)element.get("product.image")).getView("main").getUrl());
-	         product.setPrice(((io.prismic.Fragment.Text) element.get("product.price")).getValue());
-	         StringBuilder description = new StringBuilder();
-	         List<Block> dscBlocks = ((io.prismic.Fragment.StructuredText) element.get("product.description")).getBlocks();
-	        	dscBlocks.forEach(block ->{
-	        			try {
-	        				
-	        			description.append(((Paragraph) block).getText());
-	        			}catch (Exception e) {
-							// TODO: handle exception
-	        				description.append(((Heading) block).getText());
-						}
-	        	});
-	        	product.setDescription(description.toString());
-	        	
-	        	products.add(product);
-	         
-	      }
-		return products;
-	}
 	
 	@RequestMapping(value = "/documents/{id:[-_a-zA-Z0-9]{16}}/{slug}", method = RequestMethod.GET)
     public String detail(@PathVariable("id") String id,
@@ -104,5 +72,52 @@ public class ContentController {
             return "redirect:/documents/" + id + "/" + maybeDocument.getSlug() + "/";
         }
     }
+	
+	/**
+	 * @param product
+	 * @param document
+	 */
+	private List<Product> createProducts(List<Document> document) {
+		List<Product> products = new ArrayList<Product>();
+		Iterator<Document> itr = document.iterator();
+		
+		while(itr.hasNext()) {
+			Product product =  new Product();
+			
+	         Document element = itr.next();
+	         product.setId(element.getId());
+	         product.setImage(((io.prismic.Fragment.Image)element.get("product.image")).getView("main").getUrl());
+	         product.setPrice(((io.prismic.Fragment.Text) element.get("product.price")).getValue());
+	         List<Block> nameBlocks = ((io.prismic.Fragment.StructuredText)
+					 element.get("product.name")).getBlocks();
+	         	StringBuilder name = new StringBuilder();
+		         nameBlocks.forEach(block ->{
+	     			try {	        				
+	     				name.append(((Paragraph) block).getText());
+	     			}catch (Exception e) {
+							// TODO: handle exception
+	     				name.append(((Heading) block).getText());
+						}
+	     	});
+		         product.setName(name.toString());
+		         
+				
+	         StringBuilder description = new StringBuilder();
+	         List<Block> dscBlocks = ((io.prismic.Fragment.StructuredText) element.get("product.description")).getBlocks();
+	        	dscBlocks.forEach(block ->{
+	        			try {	        				
+	        				description.append(((Paragraph) block).getText());
+	        			}catch (Exception e) {
+							// TODO: handle exception
+	        				description.append(((Heading) block).getText());
+						}
+	        	});
+	        	product.setDescription(description.toString());
+	        	
+	        	products.add(product);
+	         
+	      }
+		return products;
+	}
 	
 }
